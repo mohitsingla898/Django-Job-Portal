@@ -1,47 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Job Portal | Find Your Dream Job</title>
+    <title>JobFinder | Find Your Dream Job</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: #ffffff;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .navbar-brand {
+            color: #2563eb !important;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            padding: 85px 20px;
+            border-radius: 0 0 35px 35px;
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+        }
+
+        .search-box {
+            background: white;
+            padding: 15px;
+            border-radius: 14px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+        }
+
+        .job-card {
+            border: none;
+            border-radius: 16px;
+            transition: 0.3s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.10);
+        }
+
+        .company-icon {
+            width: 52px;
+            height: 52px;
+            background: #dbeafe;
+            color: #2563eb;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        .section-title {
+            font-weight: 800;
+            color: #172554;
+        }
+
+        footer {
+            background: #0f172a;
+            color: #cbd5e1;
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-dark bg-primary">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
 
-            <a class="navbar-brand fw-bold" href="{% url 'job_list' %}">
-                Job Portal
+            <a class="navbar-brand" href="{% url 'job_list' %}">
+                💼 JobFinder
             </a>
 
-            <div class="d-flex gap-2 align-items-center">
+            <div class="d-flex flex-wrap gap-2 align-items-center">
 
                 {% if user.is_authenticated %}
 
-                    <span class="text-white">
-                        Welcome, {{ user.username }}
+                    <span class="text-secondary small me-2">
+                        Hi, {{ user.username }}
                     </span>
 
                     <a href="{% url 'job_create' %}"
-                       class="btn btn-light btn-sm">
-                        Post a Job
+                       class="btn btn-primary btn-sm">
+                        + Post Job
                     </a>
 
                     <a href="{% url 'my_applications' %}"
-                       class="btn btn-warning btn-sm">
+                       class="btn btn-outline-primary btn-sm">
                         My Applications
                     </a>
 
-                    <form method="POST" action="{% url 'logout' %}">
+                    <form method="POST"
+                          action="{% url 'logout' %}"
+                          class="m-0">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm">
+                        <button class="btn btn-outline-danger btn-sm"
+                                type="submit">
                             Logout
                         </button>
                     </form>
@@ -49,12 +127,12 @@
                 {% else %}
 
                     <a href="{% url 'login' %}"
-                       class="btn btn-light btn-sm">
+                       class="btn btn-outline-primary btn-sm">
                         Login
                     </a>
 
                     <a href="{% url 'register' %}"
-                       class="btn btn-warning btn-sm">
+                       class="btn btn-primary btn-sm">
                         Register
                     </a>
 
@@ -64,91 +142,113 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <div class="container py-5">
+    <!-- HERO SECTION -->
+    <section class="hero text-center">
+        <div class="container">
 
-        <div class="text-center mb-5">
-            <h1 class="fw-bold">Find Your Dream Job</h1>
-            <p class="text-muted">
-                Discover exciting career opportunities.
+            <span class="badge bg-light text-primary mb-3 px-3 py-2">
+                Your Career Starts Here
+            </span>
+
+            <h1>Find Your Dream Job</h1>
+
+            <p class="lead mt-3 mb-4">
+                Explore opportunities and take the next step in your career.
             </p>
+
+            <!-- SEARCH -->
+            <form method="GET"
+                  action="{% url 'job_list' %}"
+                  class="search-box mx-auto"
+                  style="max-width: 850px;">
+
+                <div class="row g-2">
+
+                    <div class="col-md-9">
+                        <input type="text"
+                               name="q"
+                               value="{{ query }}"
+                               class="form-control form-control-lg border-0"
+                               placeholder="Job title, company or location">
+                    </div>
+
+                    <div class="col-md-3">
+                        <button type="submit"
+                                class="btn btn-primary btn-lg w-100">
+                            Search Jobs
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+
         </div>
+    </section>
 
-        <!-- Search -->
-        <form method="GET"
-              action="{% url 'job_list' %}"
-              class="row g-2 mb-4">
+    <!-- JOB LIST -->
+    <section class="container py-5">
 
-            <div class="col-md-10">
-                <input
-                    type="text"
-                    name="q"
-                    value="{{ query }}"
-                    class="form-control form-control-lg"
-                    placeholder="Search by job title, company or location"
-                >
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="section-title mb-1">Latest Opportunities</h2>
+                <p class="text-muted mb-0">
+                    Find the right opportunity for your future.
+                </p>
             </div>
 
-            <div class="col-md-2">
-                <button type="submit"
-                        class="btn btn-primary btn-lg w-100">
-                    Search
-                </button>
-            </div>
-
-        </form>
-
-        <div class="mb-4">
-            <a href="{% url 'job_list' %}" class="btn btn-outline-secondary btn-sm">
-                Clear Search
-            </a>
+            {% if query %}
+                <a href="{% url 'job_list' %}"
+                   class="btn btn-outline-secondary btn-sm">
+                    Clear Search
+                </a>
+            {% endif %}
         </div>
 
-        <h2 class="mb-4">Available Jobs</h2>
-
-        <!-- Job Cards -->
-        <div class="row">
+        <div class="row g-4">
 
             {% for job in jobs %}
 
-                <div class="col-md-6 mb-4">
+                <div class="col-md-6 col-lg-4">
 
-                    <div class="card shadow-sm h-100">
+                    <div class="card job-card shadow-sm h-100">
+                        <div class="card-body p-4">
 
-                        <div class="card-body">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="company-icon">
+                                    {{ job.company|slice:":1"|upper }}
+                                </div>
 
-                            <h4 class="card-title">
-                                {{ job.title }}
-                            </h4>
+                                <div>
+                                    <h5 class="fw-bold mb-1">
+                                        {{ job.title }}
+                                    </h5>
 
-                            <h6 class="text-primary">
-                                {{ job.company }}
-                            </h6>
+                                    <p class="text-muted small mb-0">
+                                        {{ job.company }}
+                                    </p>
+                                </div>
+                            </div>
 
                             <p class="text-muted mb-2">
                                 📍 {{ job.location }}
                             </p>
 
-                            <p>
-                                <strong>Salary:</strong>
+                            <p class="fw-semibold mb-3">
                                 ₹{{ job.salary }}
                             </p>
 
-                            <span class="badge bg-success">
+                            <span class="badge bg-primary-subtle text-primary mb-3">
                                 {{ job.get_job_type_display }}
                             </span>
 
                             <div class="mt-3">
-
                                 <a href="{% url 'job_detail' job.pk %}"
-                                   class="btn btn-primary">
-                                    View Details
+                                   class="btn btn-primary w-100">
+                                    View Job Details →
                                 </a>
-
                             </div>
 
                         </div>
-
                     </div>
 
                 </div>
@@ -156,22 +256,31 @@
             {% empty %}
 
                 <div class="col-12">
-                    <div class="alert alert-info">
-                        No jobs found.
+                    <div class="alert alert-info text-center py-4">
+                        No jobs found. Try another search.
                     </div>
                 </div>
 
             {% endfor %}
 
         </div>
+    </section>
 
-    </div>
+    <!-- FOOTER -->
+    <footer class="py-4 mt-5">
+        <div class="container text-center">
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3">
-        <p class="mb-0">
-            © 2026 Job Portal | Built with Django
-        </p>
+            <h5 class="text-white fw-bold">💼 JobFinder</h5>
+
+            <p class="small mb-2">
+                Connecting talented people with great opportunities.
+            </p>
+
+            <p class="small mb-0">
+                © 2026 JobFinder. Built with Django & Bootstrap.
+            </p>
+
+        </div>
     </footer>
 
 </body>
