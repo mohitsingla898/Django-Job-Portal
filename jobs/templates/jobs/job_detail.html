@@ -4,75 +4,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ job.title }} - Job Portal</title>
+
+    <title>{{ job.title }} | JobFinder</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fb;
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+
+        .navbar-brand {
+            color: #2563eb;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .job-card {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .job-header {
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            color: white;
+            padding: 35px;
+        }
+
+        .company-icon {
+            width: 65px;
+            height: 65px;
+            border-radius: 15px;
+            background: white;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 18px;
+            height: 100%;
+        }
+
+        .apply-card {
+            border: none;
+            border-radius: 20px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+
+        footer {
+            background: #0f172a;
+            color: #cbd5e1;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h1>{{ job.title }}</h1>
+    <!-- NAVBAR -->
+    <nav class="navbar py-3">
+        <div class="container">
+            <a href="{% url 'job_list' %}"
+               class="navbar-brand text-decoration-none">
+                💼 JobFinder
+            </a>
 
-    <hr>
+            <a href="{% url 'job_list' %}"
+               class="btn btn-outline-primary">
+                ← All Jobs
+            </a>
+        </div>
+    </nav>
 
-    <h3>Company: {{ job.company }}</h3>
+    <main class="container py-5">
 
-    <p><strong>Location:</strong> {{ job.location }}</p>
+        <div class="row g-4">
 
-    <p><strong>Salary:</strong> ₹{{ job.salary }}</p>
+            <!-- JOB DETAILS -->
+            <div class="col-lg-8">
 
-    <p><strong>Job Type:</strong> {{ job.job_type }}</p>
+                <div class="card job-card shadow-sm">
 
-    <p><strong>Posted On:</strong> {{ job.created_at }}</p>
+                    <div class="job-header">
+                        <div class="d-flex align-items-center gap-3">
 
-    <h2>Job Description</h2>
+                            <div class="company-icon">
+                                {{ job.company|slice:":1"|upper }}
+                            </div>
 
-    <p>{{ job.description|linebreaks }}</p>
-    <!-- Apply for Job Section -->
+                            <div>
+                                <h2 class="fw-bold mb-1">
+                                    {{ job.title }}
+                                </h2>
 
-    {% if user.is_authenticated %}
+                                <p class="mb-0 opacity-75">
+                                    {{ job.company }}
+                                </p>
+                            </div>
 
-    {% if user != job.posted_by %}
+                        </div>
+                    </div>
 
-    <form method="POST" action="{% url 'apply_to_job' job.pk %}">
-        {% csrf_token %}
+                    <div class="card-body p-4">
 
-        <button type="submit">
-            Apply Now
-        </button>
-    </form>
+                        <div class="row g-3 mb-4">
 
-    {% else %}
+                            <div class="col-md-6">
+                                <div class="info-box">
+                                    <small class="text-muted">Location</small>
+                                    <h6 class="fw-bold mt-2 mb-0">
+                                        📍 {{ job.location }}
+                                    </h6>
+                                </div>
+                            </div>
 
-    <p>You posted this job.</p>
+                            <div class="col-md-6">
+                                <div class="info-box">
+                                    <small class="text-muted">Salary</small>
+                                    <h6 class="fw-bold mt-2 mb-0">
+                                        ₹{{ job.salary }}
+                                    </h6>
+                                </div>
+                            </div>
 
-    {% endif %}
+                            <div class="col-md-6">
+                                <div class="info-box">
+                                    <small class="text-muted">Job Type</small>
+                                    <h6 class="fw-bold mt-2 mb-0">
+                                        {{ job.get_job_type_display }}
+                                    </h6>
+                                </div>
+                            </div>
 
-    {% else %}
+                            <div class="col-md-6">
+                                <div class="info-box">
+                                    <small class="text-muted">Posted On</small>
+                                    <h6 class="fw-bold mt-2 mb-0">
+                                        {{ job.created_at|date:"d M Y" }}
+                                    </h6>
+                                </div>
+                            </div>
 
-    <p>
-        Please
-        <a href="{% url 'login' %}?next={{ request.path|urlencode }}">
-            Login
-        </a>
-        to apply for this job.
-    </p>
+                        </div>
 
-    {% endif %}
+                        <hr>
 
-    <!-- Display Messages -->
+                        <h4 class="fw-bold mt-4 mb-3">
+                            Job Description
+                        </h4>
 
-    {% if messages %}
-    {% for message in messages %}
-    <p>{{ message }}</p>
-    {% endfor %}
-    {% endif %}
+                        <div class="text-secondary lh-lg">
+                            {{ job.description|linebreaks }}
+                        </div>
 
+                    </div>
+                </div>
+            </div>
 
-    <hr>
+            <!-- APPLY SECTION -->
+            <div class="col-lg-4">
 
-    <a href="{% url 'job_list' %}">
-        Back to All Jobs
-    </a>
+                <div class="card apply-card shadow-sm">
+                    <div class="card-body p-4">
+
+                        <h4 class="fw-bold mb-3">
+                            Interested in this job?
+                        </h4>
+
+                        <p class="text-muted">
+                            Take the next step in your career.
+                        </p>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-info">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if user.is_authenticated %}
+
+                            {% if user == job.posted_by %}
+
+                                <div class="alert alert-secondary">
+                                    You posted this job.
+                                </div>
+
+                            {% else %}
+
+                                <form method="POST"
+                                      action="{% url 'apply_to_job' job.pk %}">
+                                    {% csrf_token %}
+
+                                    <button type="submit"
+                                            class="btn btn-primary btn-lg w-100">
+                                        Apply Now →
+                                    </button>
+                                </form>
+
+                            {% endif %}
+
+                        {% else %}
+
+                            <p class="small text-muted">
+                                Please login to apply for this position.
+                            </p>
+
+                            <a href="{% url 'login' %}?next={{ request.path|urlencode }}"
+                               class="btn btn-primary w-100">
+                                Login to Apply
+                            </a>
+
+                        {% endif %}
+
+                        <hr>
+
+                        <a href="{% url 'job_list' %}"
+                           class="btn btn-outline-secondary w-100">
+                            Browse More Jobs
+                        </a>
+
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 mt-5">
+        <p class="mb-0">
+            © 2026 JobFinder | Built with Django & Bootstrap
+        </p>
+    </footer>
 
 </body>
-
 </html>
