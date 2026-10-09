@@ -4,31 +4,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Job Portal</title>
+
+    <title>Register | JobFinder</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2563eb, #1e40af);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            padding: 30px 15px;
+        }
+
+        .register-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .brand {
+            color: #2563eb;
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .form-control {
+            padding: 12px;
+            border-radius: 10px;
+        }
+
+        .btn-register {
+            background: #2563eb;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .btn-register:hover {
+            background: #1e40af;
+            color: white;
+        }
+
+        .helptext {
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
 </head>
 
 <body>
 
-    <h1>Create Your Account</h1>
+    <div class="container">
+        <div class="register-card mx-auto">
 
-    <form method="POST">
+            <!-- Header -->
+            <div class="text-center mb-4">
 
-        {% csrf_token %}
+                <a href="{% url 'job_list' %}"
+                   class="brand text-decoration-none">
+                    💼 JobFinder
+                </a>
 
-        {{ form.as_p }}
+                <h3 class="fw-bold mt-3">
+                    Create Your Account
+                </h3>
 
-        <button type="submit">Register</button>
+                <p class="text-muted">
+                    Join JobFinder and explore new opportunities.
+                </p>
 
-    </form>
+            </div>
 
-    <p>
-        Already have an account?
-        <a href="{% url 'login' %}">Login Here</a>
-    </p>
+            <!-- Registration Form -->
+            <form method="POST">
+                {% csrf_token %}
 
-    <hr>
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
 
-    <a href="{% url 'job_list' %}">Back to Homepage</a>
+                {% for field in form %}
+
+                    <div class="mb-3">
+
+                        <label for="{{ field.id_for_label }}"
+                               class="form-label fw-semibold">
+                            {{ field.label }}
+                        </label>
+
+                        <input
+                            type="{% if 'password' in field.name %}password{% else %}text{% endif %}"
+                            name="{{ field.html_name }}"
+                            id="{{ field.id_for_label }}"
+                            class="form-control"
+                            placeholder="Enter {{ field.label|lower }}"
+                            {% if field.field.required %}required{% endif %}
+                        >
+
+                        {% if field.help_text %}
+                            <div class="helptext mt-1">
+                                {{ field.help_text|safe }}
+                            </div>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ error }}
+                            </div>
+                        {% endfor %}
+
+                    </div>
+
+                {% endfor %}
+
+                <button type="submit"
+                        class="btn btn-register w-100 mt-2">
+                    Create Account
+                </button>
+
+            </form>
+
+            <!-- Login Link -->
+            <p class="text-center mt-4 mb-2">
+                Already have an account?
+
+                <a href="{% url 'login' %}"
+                   class="text-decoration-none fw-semibold">
+                    Login
+                </a>
+            </p>
+
+            <div class="text-center">
+                <a href="{% url 'job_list' %}"
+                   class="text-muted text-decoration-none small">
+                    ← Back to Homepage
+                </a>
+            </div>
+
+        </div>
+    </div>
 
 </body>
 </html>
