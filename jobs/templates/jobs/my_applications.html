@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Applications - Job Portal</title>
+</head>
+
+<body>
+
+    <h1>My Job Applications</h1>
+
+    <hr>
+
+    {% if applications %}
+
+        {% for application in applications %}
+
+            <div>
+                <h2>{{ application.job.title }}</h2>
+
+                <p>
+                    <strong>Company:</strong>
+                    {{ application.job.company }}
+                </p>
+
+                <p>
+                    <strong>Location:</strong>
+                    {{ application.job.location }}
+                </p>
+
+                <p>
+                    <strong>Applied On:</strong>
+                    {{ application.applied_at }}
+                </p>
+
+                <a href="{% url 'job_detail' application.job.pk %}">
+                    View Job Details
+                </a>
+
+                <hr>
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>You have not applied for any jobs yet.</p>
+
+    {% endif %}
+
+    <a href="{% url 'job_list' %}">
+        Back to Homepage
+    </a>
+
+</body>
+
+</html>

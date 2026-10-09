@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ job.title }} - Job Portal</title>
+</head>
+
+<body>
+
+    <h1>{{ job.title }}</h1>
+
+    <hr>
+
+    <h3>Company: {{ job.company }}</h3>
+
+    <p><strong>Location:</strong> {{ job.location }}</p>
+
+    <p><strong>Salary:</strong> ₹{{ job.salary }}</p>
+
+    <p><strong>Job Type:</strong> {{ job.job_type }}</p>
+
+    <p><strong>Posted On:</strong> {{ job.created_at }}</p>
+
+    <h2>Job Description</h2>
+
+    <p>{{ job.description|linebreaks }}</p>
+    <!-- Apply for Job Section -->
+
+    {% if user.is_authenticated %}
+
+    {% if user != job.posted_by %}
+
+    <form method="POST" action="{% url 'apply_to_job' job.pk %}">
+        {% csrf_token %}
+
+        <button type="submit">
+            Apply Now
+        </button>
+    </form>
+
+    {% else %}
+
+    <p>You posted this job.</p>
+
+    {% endif %}
+
+    {% else %}
+
+    <p>
+        Please
+        <a href="{% url 'login' %}?next={{ request.path|urlencode }}">
+            Login
+        </a>
+        to apply for this job.
+    </p>
+
+    {% endif %}
+
+    <!-- Display Messages -->
+
+    {% if messages %}
+    {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+
+
+    <hr>
+
+    <a href="{% url 'job_list' %}">
+        Back to All Jobs
+    </a>
+
+</body>
+
+</html>
