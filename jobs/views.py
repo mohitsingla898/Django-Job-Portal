@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import JobForm
 from django.db.models import Q
+from django.http import HttpResponseForbidden
 
 # Display All Jobs
 def job_list(request):
@@ -124,4 +125,67 @@ def my_applications(request):
         request,
         'jobs/my_applications.html',
         {'applications': applications}
+    )
+@login_required
+def my_jobs(request):
+    jobs = Job.objects.filter(
+        posted_by=request.user
+    ).order_by('-created_at')
+
+    return render(
+        request,
+        'jobs/my_jobs.html',
+        {'jobs': jobs}
+    )
+@login_required
+def job_edit(request, pk):
+
+    job = get_object_or_404(Job, pk=pk)
+
+    # Only the job owner can edit
+    if job.posted_by != request.user:
+        return HttpResponseForbidden(
+            "You are not allowed to edit this job."
+        )
+
+    if request.method == "POST":
+
+        form = JobForm(request.POST, instance=job)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect('job_detail', pk=job.pk)
+
+    else:
+        form = JobForm(instance=job)
+
+    return render(
+        request,
+        'jobs/job_form.html',
+        {
+            'form': form,
+            'job': job,
+            'is_edit': True
+        }
+    )
+@login_required
+def job_delete(request, pk):
+
+    job = get_object_or_404(Job, pk=pk)
+
+    # Only the owner can delete the job
+    if job.posted_by != request.user:
+        return HttpResponseForbidden(
+            "You are not allowed to delete this job."
+        )
+
+    if request.method == "POST":
+        job.delete()
+        return redirect('my_jobs')
+
+    return render(
+        request,
+        'jobs/job_confirm_delete.html',
+        {'job': job}
     )

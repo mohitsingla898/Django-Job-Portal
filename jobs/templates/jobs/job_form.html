@@ -5,29 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Post a Job | JobFinder</title>
+    <title>
+        {% if is_edit %}
+            Edit Job
+        {% else %}
+            Post a Job
+        {% endif %}
+        | JobFinder
+    </title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <!-- Bootstrap 5 -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
     <style>
         body {
-            background: #f5f7fb;
+            background-color: #f5f7fb;
             font-family: Arial, sans-serif;
             color: #1e293b;
+            min-height: 100vh;
         }
+
+        /* Navbar */
 
         .navbar {
             background: white;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
         }
 
         .navbar-brand {
-            color: #2563eb;
+            color: #2563eb !important;
             font-size: 26px;
             font-weight: 800;
         }
+
+        /* Main Card */
 
         .form-card {
             border: none;
@@ -35,157 +49,296 @@
             overflow: hidden;
         }
 
+        /* Form Header */
+
         .form-header {
-            background: linear-gradient(135deg, #2563eb, #1e40af);
+            background: linear-gradient(
+                135deg,
+                #2563eb,
+                #1e40af
+            );
+
             color: white;
             padding: 35px;
         }
 
-        .form-control,
-        .form-select {
-            border-radius: 10px;
-            padding: 12px;
+        .form-header h2 {
+            font-weight: 800;
         }
+
+        /* Form Fields */
+
+        .job-field input,
+        .job-field select,
+        .job-field textarea {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            background-color: white;
+            font-size: 16px;
+            color: #1e293b;
+            transition: 0.3s;
+        }
+
+        .job-field input:focus,
+        .job-field select:focus,
+        .job-field textarea:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(
+                37, 99, 235, 0.12
+            );
+        }
+
+        .job-field textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .job-field select {
+            cursor: pointer;
+        }
+
+        /* Labels */
+
+        .form-label {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        /* Buttons */
 
         .btn-primary {
             background: #2563eb;
             border-color: #2563eb;
             border-radius: 10px;
-            padding: 12px;
+            padding: 12px 25px;
             font-weight: 600;
         }
+
+        .btn-primary:hover {
+            background: #1e40af;
+            border-color: #1e40af;
+        }
+
+        .btn-outline-secondary {
+            border-radius: 10px;
+            padding: 12px 25px;
+        }
+
+        /* Footer */
 
         footer {
             background: #0f172a;
             color: #cbd5e1;
         }
+
+        /* Mobile */
+
+        @media (max-width: 576px) {
+            .form-header {
+                padding: 25px;
+            }
+
+            .form-header h2 {
+                font-size: 25px;
+            }
+
+            .navbar-brand {
+                font-size: 22px;
+            }
+        }
     </style>
+
 </head>
 
 <body>
 
     <!-- NAVBAR -->
+
     <nav class="navbar py-3">
+
         <div class="container">
 
-            <a href="{% url 'job_list' %}"
-               class="navbar-brand text-decoration-none">
+            <a
+                href="{% url 'job_list' %}"
+                class="navbar-brand text-decoration-none"
+            >
                 💼 JobFinder
             </a>
 
-            <a href="{% url 'job_list' %}"
-               class="btn btn-outline-primary">
-                ← Back to Jobs
+            <a
+                href="{% url 'my_jobs' %}"
+                class="btn btn-outline-primary"
+            >
+                ← My Jobs
             </a>
 
         </div>
+
     </nav>
 
+
     <!-- MAIN CONTENT -->
+
     <main class="container py-5">
 
         <div class="row justify-content-center">
 
-            <div class="col-lg-8">
+            <div class="col-lg-8 col-xl-7">
 
                 <div class="card form-card shadow-sm">
 
                     <!-- HEADER -->
+
                     <div class="form-header">
 
-                        <h2 class="fw-bold mb-2">
-                            Post a New Job
+                        <h2 class="mb-2">
+
+                            {% if is_edit %}
+
+                                ✏️ Edit Job
+
+                            {% else %}
+
+                                💼 Post a New Job
+
+                            {% endif %}
+
                         </h2>
 
                         <p class="mb-0 opacity-75">
-                            Find the right candidate for your company.
+
+                            {% if is_edit %}
+
+                                Update your job information
+                                and save your changes.
+
+                            {% else %}
+
+                                Create a job listing and find
+                                the right candidate for your company.
+
+                            {% endif %}
+
                         </p>
 
                     </div>
 
-                    <!-- FORM -->
+
+                    <!-- FORM BODY -->
+
                     <div class="card-body p-4 p-md-5">
 
                         <form method="POST">
+
                             {% csrf_token %}
 
+
+                            <!-- FORM ERRORS -->
+
                             {% if form.non_field_errors %}
+
                                 <div class="alert alert-danger">
+
                                     {{ form.non_field_errors }}
+
                                 </div>
+
                             {% endif %}
+
+
+                            <!-- FORM FIELDS -->
 
                             {% for field in form %}
 
                                 <div class="mb-4">
 
-                                    <label for="{{ field.id_for_label }}"
-                                           class="form-label fw-semibold">
+                                    <label
+                                        for="{{ field.id_for_label }}"
+                                        class="form-label"
+                                    >
+
                                         {{ field.label }}
+
+                                        {% if field.field.required %}
+                                            <span class="text-danger">*</span>
+                                        {% endif %}
+
                                     </label>
 
-                                    {% if field.field.widget.input_type == "select" %}
 
-                                        <select
-                                            name="{{ field.html_name }}"
-                                            id="{{ field.id_for_label }}"
-                                            class="form-select"
-                                            {% if field.field.required %}required{% endif %}>
+                                    <!-- DJANGO FIELD -->
 
-                                            {% for value, label in field.field.choices %}
-                                                <option value="{{ value }}"
-                                                    {% if field.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>
-                                                    {{ label }}
-                                                </option>
-                                            {% endfor %}
+                                    <div class="job-field">
 
-                                        </select>
+                                        {{ field }}
 
-                                    {% elif field.name == "description" %}
+                                    </div>
 
-                                        <textarea
-                                            name="{{ field.html_name }}"
-                                            id="{{ field.id_for_label }}"
-                                            class="form-control"
-                                            rows="6"
-                                            placeholder="Describe the job responsibilities and requirements..."
-                                            {% if field.field.required %}required{% endif %}>{{ field.value|default_if_none:"" }}</textarea>
 
-                                    {% else %}
+                                    <!-- HELP TEXT -->
 
-                                        <input
-                                            type="{% if field.name == 'salary' %}number{% else %}text{% endif %}"
-                                            name="{{ field.html_name }}"
-                                            id="{{ field.id_for_label }}"
-                                            class="form-control"
-                                            value="{{ field.value|default_if_none:'' }}"
-                                            placeholder="Enter {{ field.label|lower }}"
-                                            {% if field.field.required %}required{% endif %}
-                                            {% if field.name == 'salary' %}min="0"{% endif %}
-                                        >
+                                    {% if field.help_text %}
+
+                                        <div class="form-text mt-2">
+
+                                            {{ field.help_text }}
+
+                                        </div>
 
                                     {% endif %}
 
+
+                                    <!-- VALIDATION ERRORS -->
+
                                     {% for error in field.errors %}
+
                                         <div class="text-danger small mt-2">
+
                                             {{ error }}
+
                                         </div>
+
                                     {% endfor %}
 
                                 </div>
 
                             {% endfor %}
 
-                            <div class="d-flex flex-wrap gap-3">
 
-                                <button type="submit"
-                                        class="btn btn-primary px-5">
-                                    Publish Job →
+                            <!-- BUTTONS -->
+
+                            <div class="d-flex flex-wrap gap-3 mt-4">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary px-5"
+                                >
+
+                                    {% if is_edit %}
+
+                                        💾 Save Changes
+
+                                    {% else %}
+
+                                        🚀 Publish Job
+
+                                    {% endif %}
+
                                 </button>
 
-                                <a href="{% url 'job_list' %}"
-                                   class="btn btn-outline-secondary px-4">
+
+                                <a
+                                    href="{% url 'my_jobs' %}"
+                                    class="btn btn-outline-secondary px-4"
+                                >
+
                                     Cancel
+
                                 </a>
 
                             </div>
@@ -193,6 +346,7 @@
                         </form>
 
                     </div>
+
                 </div>
 
             </div>
@@ -201,12 +355,24 @@
 
     </main>
 
+
     <!-- FOOTER -->
+
     <footer class="text-center py-4 mt-5">
-        <p class="mb-0">
-            © 2026 JobFinder | Built with Django & Bootstrap
-        </p>
+
+        <div class="container">
+
+            <p class="mb-0">
+
+                © 2026 JobFinder |
+                Built with Django & Bootstrap
+
+            </p>
+
+        </div>
+
     </footer>
 
 </body>
+
 </html>
